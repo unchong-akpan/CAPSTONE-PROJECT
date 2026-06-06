@@ -1,0 +1,87 @@
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String
+  role      String   // "CREATOR" or "EVENTEE"
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  eventsCreated Event[]    @relation("CreatedEvents")
+  tickets       Ticket[]   @relation("EventeeTickets")
+  payments      Payment[]
+  reminders     Reminder[]
+}
+
+model Event {
+  id                      String   @id @default(uuid())
+  title                   String
+  description             String
+  location                String
+  date                    DateTime
+  price                   Float
+  totalCapacity           Int
+  availableTickets        Int
+  creatorReminderInterval String   // e.g. "1_DAY", "1_WEEK", "NONE"
+  creatorId               String
+  creator                 User     @relation("CreatedEvents", fields: [creatorId], references: [id])
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+
+  tickets   Ticket[]
+  payments  Payment[]
+  reminders Reminder[]
+}
+
+model Ticket {
+  id                String    @id @default(uuid())
+  eventId           String
+  event             Event     @relation(fields: [eventId], references: [id])
+  eventeeId         String
+  eventee           User      @relation("EventeeTickets", fields: [eventeeId], references: [id])
+  qrCodeData        String    // Base64 image data URL
+  verificationToken String    @unique // Unique verification hash
+  isScanned         Boolean   @default(false)
+  scannedAt         DateTime?
+  paymentReference  String
+  pricePaid         Float
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+}
+
+model Payment {
+  id        String   @id @default(uuid())
+  reference String   @unique
+  status    String   // "PENDING", "SUCCESS", "FAILED"
+  amount    Float
+  currency  String   @default("NGN")
+  eventeeId String
+  eventee   User     @relation(fields: [eventeeId], references: [id])
+  eventId   String
+  event     Event    @relation(fields: [eventId], references: [id])
+  ticketId  String?  // Nullable until purchase is verified and ticket generated
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Reminder {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  eventId   String
+  event     Event    @relation(fields: [eventId], references: [id])
+  sendAt    DateTime
+  status    String   // "PENDING", "SENT", "FAILED"
+  type      String   // "CREATOR_SET", "EVENTEE_SET"
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

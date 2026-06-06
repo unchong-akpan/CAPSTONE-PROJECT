@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Eventful</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="bg-orb bg-orb-a"></div>
+    <div class="bg-orb bg-orb-b"></div>
+
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">AltSchool Capstone</p>
+        <h1>Eventful</h1>
+        <p class="subhead">A submission-ready event platform with auth, ticketing, reminders, analytics, and QR verification.</p>
+      </div>
+      <div class="status-panel">
+        <span id="authChip" class="chip chip-muted">Not signed in</span>
+        <span id="roleChip" class="chip chip-outline">No role</span>
+      </div>
+    </header>
+
+    <main class="shell">
+      <section class="hero card">
+        <div class="hero-copy">
+          <p class="eyebrow">Ticketing. Payments. QR access. Reminders.</p>
+          <h2>Run event commerce from one clean dashboard.</h2>
+          <p class="lead">
+            Eventful lets creators publish events, sell tickets, verify QR codes,
+            inspect analytics, and keep attendees informed with scheduled reminders.
+          </p>
+          <div class="feature-row">
+            <span class="feature-pill">JWT auth</span>
+            <span class="feature-pill">Paystack checkout</span>
+            <span class="feature-pill">Reminder cron</span>
+            <span class="feature-pill">Swagger + Postman</span>
+          </div>
+          <div class="hero-actions">
+            <a class="button button-primary" href="/docs" target="_blank" rel="noreferrer">Open Swagger</a>
+            <a class="button button-secondary" href="#events">Browse events</a>
+          </div>
+        </div>
+        <div class="hero-metrics">
+          <div class="metric">
+            <span>Auth</span>
+            <strong>Creator and eventee roles</strong>
+          </div>
+          <div class="metric">
+            <span>Payments</span>
+            <strong>Paystack flow with mock checkout</strong>
+          </div>
+          <div class="metric">
+            <span>Access</span>
+            <strong>QR scan verification</strong>
+          </div>
+        </div>
+      </section>
+
+      <section class="card banner">
+        <div>
+          <p class="eyebrow">Backend status</p>
+          <h3>Ready for demonstration</h3>
+        </div>
+        <p>
+          The backend routes are live, the cron reminder processor is enabled,
+          and the frontend is wired to the same API surface you can inspect in Swagger.
+        </p>
+      </section>
+
+      <section class="grid auth-grid">
+        <article class="card panel-card">
+          <div class="card-heading">
+            <div>
+              <p class="eyebrow">Account</p>
+              <h3>Register</h3>
+            </div>
+          </div>
+          <form id="registerForm" class="form-grid">
+            <label>
+              Name
+              <input name="name" type="text" placeholder="Creator User" required />
+            </label>
+            <label>
+              Email
+              <input name="email" type="email" placeholder="creator@example.com" required />
+            </label>
+            <label>
+              Password
+              <input name="password" type="password" placeholder="Password123!" required />
+            </label>
+            <label>
+              Role
+              <select name="role" required>
+                <option value="CREATOR">CREATOR</option>
+                <option value="EVENTEE">EVENTEE</option>
+              </select>
+            </label>
+            <button class="button button-primary" type="submit">Create account</button>
+          </form>
+        </article>
+
+        <article class="card panel-card">
+          <div class="card-heading">
+            <div>
+              <p class="eyebrow">Account</p>
+              <h3>Login</h3>
+            </div>
+          </div>
+          <form id="loginForm" class="form-grid">
+            <label>
+              Email
+              <input name="email" type="email" placeholder="creator@example.com" required />
+            </label>
+            <label>
+              Password
+              <input name="password" type="password" placeholder="Password123!" required />
+            </label>
+            <button class="button button-primary" type="submit">Sign in</button>
+            <button class="button button-secondary" type="button" id="logoutBtn">Clear session</button>
+          </form>
+          <div class="token-box">
+            <span>JWT token</span>
+            <code id="tokenPreview">No token stored</code>
+          </div>
+        </article>
+      </section>
+
+      <section class="grid two-col">
+        <article id="events" class="card panel-card">
+          <div class="card-heading">
+            <div>
+              <p class="eyebrow">Public</p>
+              <h3>Upcoming events</h3>
+            </div>
+            <button class="button button-secondary" id="refreshEventsBtn" type="button">Refresh</button>
+          </div>
+          <div id="eventsList" class="cards-list"></div>
+        </article>
+
+        <aside class="stack">
+          <article class="card panel-card">
+            <div class="card-heading">
+              <div>
+                <p class="eyebrow">Creator</p>
+                <h3>Create event</h3>
+              </div>
+            </div>
+            <form id="createEventForm" class="form-grid">
+              <label>
+                Title
+                <input name="title" type="text" placeholder="Launch Party" required />
+              </label>
+              <label>
+                Description
+                <textarea name="description" rows="3" placeholder="Optional details"></textarea>
+              </label>
+              <label>
+                Location
+                <input name="location" type="text" placeholder="Lagos" />
+              </label>
+              <label>
+                Date
+                <input name="date" type="datetime-local" required />
+              </label>
+              <label>
+                Price
+                <input name="price" type="number" min="0" step="0.01" value="0" />
+              </label>
+              <label>
+                Capacity
+                <input name="totalCapacity" type="number" min="1" value="100" required />
+              </label>
+              <label>
+                Reminder
+                <select name="creatorReminderInterval">
+                  <option value="NONE">NONE</option>
+                  <option value="1_DAY">1_DAY</option>
+                  <option value="1_WEEK">1_WEEK</option>
+                  <option value="2_HOURS">2_HOURS</option>
+                  <option value="30_MINUTES">30_MINUTES</option>
+                </select>
+              </label>
+              <button class="button button-primary" type="submit">Publish event</button>
+            </form>
+          </article>
+
+          <article class="card panel-card card-accent">
+            <div class="card-heading">
+              <div>
+                <p class="eyebrow">Ticketing</p>
+                <h3>Purchase ticket</h3>
+              </div>
+            </div>
+            <form id="purchaseForm" class="form-grid">
+              <label>
+                Event ID
+                <input name="eventId" id="purchaseEventId" type="text" placeholder="event id" required />
+              </label>
+              <button class="button button-primary" type="submit">Buy ticket</button>
+            </form>
+          </article>
+        </aside>
+      </section>
+
+      <section class="grid two-col">
+        <article class="card panel-card">
+          <div class="card-heading">
+            <div>
+              <p class="eyebrow">Creator tools</p>
+              <h3>Analytics and payments</h3>
+            </div>
+          </div>
+          <div class="toolbar">
+            <button class="button button-secondary" id="loadCreatorAnalyticsBtn" type="button">Creator analytics</button>
+            <button class="button button-secondary" id="loadEventAnalyticsBtn" type="button">Event analytics</button>
+            <button class="button button-secondary" id="loadPaymentsBtn" type="button">Payments</button>
+          </div>
+          <form id="analyticsForm" class="form-grid form-inline">
+            <label>
+              Event ID
+              <input name="eventId" id="analyticsEventId" type="text" placeholder="event id" />
+            </label>
+          </form>
+          <div id="dashboardOutput" class="json-output">Run an analytics or payments query to see results here.</div>
+        </article>
+
+        <article class="card panel-card">
+          <div class="card-heading">
+            <div>
+              <p class="eyebrow">Verification</p>
+              <h3>Scan or remind</h3>
+            </div>
+          </div>
+          <div class="grid split">
+            <form id="scanForm" class="form-grid">
+              <label>
+                Verification token
+                <input name="verificationToken" type="text" placeholder="ticket token" required />
+              </label>
+              <label>
+                Event ID
+                <input name="eventId" type="text" placeholder="optional event id" />
+              </label>
+              <button class="button button-primary" type="submit">Verify ticket</button>
+            </form>
+
+            <form id="reminderForm" class="form-grid">
+              <label>
+                Event ID
+                <input name="eventId" type="text" placeholder="event id" required />
+              </label>
+              <label>
+                Send at
+                <input name="sendAt" type="datetime-local" />
+              </label>
+              <label>
+                Interval
+                <select name="interval">
+                  <option value="">Choose interval</option>
+                  <option value="1_DAY">1_DAY</option>
+                  <option value="1_WEEK">1_WEEK</option>
+                  <option value="2_HOURS">2_HOURS</option>
+                  <option value="30_MINUTES">30_MINUTES</option>
+                </select>
+              </label>
+              <button class="button button-primary" type="submit">Schedule reminder</button>
+            </form>
+          </div>
+        </article>
+      </section>
+
+      <section class="grid two-col">
+        <article class="card panel-card">
+          <div class="card-heading">
+            <div>
+              <p class="eyebrow">Personal</p>
+              <h3>My events</h3>
+            </div>
+            <button class="button button-secondary" id="loadMyEventsBtn" type="button">Load</button>
+          </div>
+          <div id="myEventsList" class="cards-list"></div>
+        </article>
+
+        <article class="card panel-card">
+          <div class="card-heading">
+            <div>
+              <p class="eyebrow">Personal</p>
+              <h3>My tickets</h3>
+            </div>
+            <button class="button button-secondary" id="loadMyTicketsBtn" type="button">Load</button>
+          </div>
+          <div id="myTicketsList" class="cards-list"></div>
+        </article>
+      </section>
+
+      <section class="card footer-card panel-card">
+        <p>
+          Backend health is driven by the same API used here. Open Swagger at
+          <a href="/docs" target="_blank" rel="noreferrer">/docs</a> or use the Postman export in the repo.
+        </p>
+      </section>
+    </main>
+
+    <div id="toast" class="toast">Saved</div>
+    <script src="/app.js"></script>
+  </body>
+</html>
