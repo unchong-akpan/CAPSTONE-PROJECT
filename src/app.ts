@@ -40,9 +40,21 @@ app.get('/', (_req, res) => {
   res.sendFile(path.join(publicDir, 'index.html'));
 });
 
-// Global error handler
+// Global error handler (must be last middleware)
 app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
   logger.error('Unhandled error', err);
+  
+  // Prevent sending response twice
+  if (res.headersSent) {
+    return;
+  }
+  
+  // Handle different error types
+  if (err instanceof Error) {
+    logger.error('Error message:', err.message);
+    logger.error('Error stack:', err.stack);
+  }
+  
   res.status(500).json({ error: 'Internal Server Error' });
 });
 
